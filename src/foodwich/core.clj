@@ -26,18 +26,25 @@
 
 ; (first ((first ((nth (f :content) 9) :content)) :content))
 (defn foodler-parse
-  [addr]
+  [addr zip]
   (let [res @(foodler-req addr zip)
         body (res :body)
-        foods (html/select (html/html-snippet (res :body)) [:div.foundLine])]
-    (map (fn [f]
-            {:name (html/text (first (html/select f [:h2 :a])))
+        foods (html/select (html/html-snippet (res :body)) [:div.foundLineNormal])]
+    (distinct
+      (map
+        (fn [f]
+            {:source :foodler
+             :id (second (re-find #"\/.+\/(\d+)" (get-in (first (html/select f [:h2 :a])) [:attrs :href])))
+             :name (html/text (first (html/select f [:h2 :a])))
              :logo (get-in (first (html/select f [:div.logo :img])) [:attrs :src])
-             :link (re-find #"\/.+\/\w+\/" (get-in (first (html/select f [:h2 :a])) [:attrs :href]))
-             :cost-range (second (re-find #"cost_(\d)" (get-in (first (html/select f [:div.cost :img])) [:attrs :src])))
-             :rating (re-find #"\d+.\d+" (html/text (first (html/select f [:div.rating :div.average]))))
-             :delivery-min (str/trim (str/replace (html/text (first (html/select f [:div.delivery :span.min]))) #"minimum" ""))
-             :delivery-fee (re-find #"\$\d+" (html/text (first (html/select f [:div.delivery :span.fee]))))}) foods)))
+             :link (re-find #"\/.+\/\d+" (get-in (first (html/select f [:h2 :a])) [:attrs :href]))
+             :cost-range (let [cost (first (html/select f [:div.cost :img]))]
+                          (when cost
+                            (Integer. (second (re-find #"cost_(\d)" (get-in cost [:attrs :src]))))))
+             :rating (let [rating (re-find #"\d+.\d+" (html/text (first (html/select f [:div.rating :div.average]))))]
+                      (when rating (Float. rating)))
+             :delivery-min (Integer. (re-find #"\d+" (html/text (first (html/select f [:div.delivery :span.min])))))
+             :delivery-fee (or (second (re-find #"\$(\d+)" (html/text (first (html/select f [:div.delivery :span.fee]))))) 0)}) foods))))
 
 (defn -main
   "I don't do a whole lot ... yet."
