@@ -2,6 +2,7 @@
   (:require [org.httpkit.server :as server]
             [foodwich.scraper :as scraper]
             [foodwich.templates :as tmplts]
+            [environ.core :refer [env]]
             [cheshire.core :as json])
   (:import [java.io File])
   (:gen-class))
@@ -39,4 +40,5 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (reset! server (server/run-server #'app {:port 8080})))
+  (let [port (Integer/parseInt (env :port "8080"))]
+  (reset! server (server/run-server #'app {:port port}))))
