@@ -1,6 +1,7 @@
 (defproject foodwich "0.1.0-SNAPSHOT"
   :description "See README"
   :url "https://github.com/trinityXmontoya/foodwich.git"
+  :min-lein-version "2.0.0"
   :license {:name "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International"
             :url "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode"
             :author "Trinity Montoya"}
