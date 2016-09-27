@@ -51,17 +51,17 @@
         options))))
 
 (defn doordash-req
-  [addr]
+  [coords]
   (let [url "https://api.doordash.com/v1/store_search"
-        opts {:query-params {:lat 40.7589
-                             :lng -73.9851
+        opts {:query-params {:lat (coords 0)
+                             :lng (coords 1)
                              :promotion 3
                              :limit 100}}]
       (http/get url opts)))
 
 (defn doordash-parse
-  [addr]
-  (let [res @(doordash-req addr)
+  [coords]
+  (let [res @(doordash-req coords)
         options (json/decode (res :body) true)]
     (remove nil?
       (map
@@ -82,15 +82,21 @@
         options))))
 
 (defn grubhub-req
-  [addr]
+  [coords]
   (let [url "https://api-gtm.grubhub.com/restaurants/search"
         opts {:query-params {:orderMethod "delivery"
                              :pageSize 1000
                              :facet "open_now:true"
-                             :location (str "POINT(" -73.9851 " " 40.7589  ")")}
-              :headers {"Authorization" "Bearer 2d03aae7-86ce-4bf3-b6fc-eb930b39f4ab"}}]
-      (http/get url opts)))
+                             :location (str "POINT(" (coords 1) " " (coords 0)  ")")}
+              :headers {"Authorization" "Bearer 1890dfe3-ae4a-4cf2-bf88-04d0759f6727"}}]
+      (http/get url opts
+        (fn [{:keys [status headers body error]}]
+           (if error
+             (do (println "Failed, exception is " error)
+                  nil)
+             body)))))
 
+; DKHI2E0IEGDPOABJEW
       ; (defn grubhub-parse
       ;   [addr]
       ;   (let [res @(grubhub-req addr)
@@ -113,9 +119,9 @@
       ;         ))
 
 (defn grubhub-parse
-  [addr]
-  (let [res @(grubhub-req addr)
-        body (json/decode (res :body) true)
+  [coords]
+  (let [res @(grubhub-req coords)
+        body (json/decode res true)
         options (get-in body [:search_result :results])]
     (map
       (fn [o]
@@ -132,27 +138,12 @@
          :delivery-time (o :delivery_time_estimate)})
       options)))
 
-
-
 (defn foodler-req
   [addr zip]
   (let [url "https://www.foodler.com/load.do"
         opts {:query-params {:waCityZip addr :searchType "wa" :pacZip zip}}]
     (http/get url opts)))
 
-; (def ^:dynamic *headline-selector*
-;      #{[html/root :> :h2 :a],
-;        [html/root :> :h3 :a]
-;        [html/root :> :h5 :a]}))
-;
-; (defn extract [node]
-;   (let [headline (first (html/select [node] *headline-selector*))
-;         byline   (first (html/select [node] *byline-selector*))
-;         summary  (first (html/select [node] *summary-selector*))
-;         result   (map html/text [headline byline summary])]
-;     (zipmap [:headline :byline :summary] (map #(str/replace %  #"\n" "") result))))
-
-; (first ((first ((nth (f :content) 9) :content)) :content))
 (defn foodler-parse
   [addr zip]
   (let [res @(foodler-req addr zip)
@@ -168,9 +159,18 @@
            :link (re-find #"\/.+\/\d+" (get-in (first (html/select o [:h2 :a])) [:attrs :href]))
            :cost-range (let [cost (first (html/select o [:div.cost :img]))]
                         (when cost
-                          (int (second (re-find #"cost_(\d)" (get-in cost [:attrs :src]))))))
+                          (Integer. (second (re-find #"cost_(\d)" (get-in cost [:attrs :src]))))))
            :rating (let [rating (re-find #"\d+.\d+" (html/text (first (html/select o [:div.rating :div.average]))))]
                     (when rating (Float. rating)))
-           :delivery-min (int (re-find #"\d+" (html/text (first (html/select o [:div.delivery :span.min])))))
+           :delivery-min (Integer. (re-find #"\d+" (html/text (first (html/select o [:div.delivery :span.min])))))
            :delivery-fee (or (second (re-find #"\$(\d+)" (html/text (first (html/select o [:div.delivery :span.fee]))))) 0)})
         options))))
+
+(defn search
+  [params]
+  (let [{:keys [addr zip coords]} params
+        coords (clojure.string/split coords #",")]
+    (concat (grubhub-parse coords)
+            (doordash-parse coords)
+            (delivery-parse addr)
+            (foodler-parse addr zip))))

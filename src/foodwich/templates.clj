@@ -4,11 +4,13 @@
 
 (defn search-template
   []
-  (hc/html [:form
+  (hc/html [:form {:method "POST" :action "/search" :id "address-form"}
               [:div.row
                 [:div.medium-6.columns
-                  [:input {:id "pac-input" :type "text" :placeholder "123 Main St"}]
-                  [:button {:type "submit" :class "button"} "Search"]]]]))
+                  [:input {:id "address-input" :name "addr" :type "text" :placeholder "123 Main St"}]
+                  [:input {:id "zip-input" :name "zip" :type "hidden"}]
+                  [:input {:id "coords-input" :name "coords" :type "hidden"}]
+                  [:input {:type "submit" :class "button"} "Search"]]]]))
 
 (defn results-template
   [results]
@@ -28,6 +30,8 @@
                   [:span.time (str (result :delivery-time) " mins")]]
                 [:h5 (result :source)]])]))
 
+; (html5)
+; (include-js "foo.js" "bar.js")
 (defn page-template
   [body]
   (hc/html [:head
@@ -45,5 +49,5 @@
                 [:h1 "Foodwich"]]]
             [:div.search
               (search-template)]
-            body
-            [:script {:src (str "https://maps.googleapis.com/maps/api/js?key=" (env :google-api-key) "&libraries=places&callback=initAutocomplete"}]]))
+            [:div#results]
+            [:script {:src (str "https://maps.googleapis.com/maps/api/js?key=" (env :google-api-key) "&libraries=places&callback=initAutocomplete")}]]))

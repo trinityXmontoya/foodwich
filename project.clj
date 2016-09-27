@@ -10,6 +10,7 @@
                  [hiccup "1.0.5"]
                  [enlive "1.1.6"]
                  [environ "1.1.0"]]
+  :plugins [[lein-environ "1.1.0"]]
   :main ^:skip-aot foodwich.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
