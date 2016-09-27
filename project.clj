@@ -7,6 +7,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [http-kit "2.1.18"]
                  [cheshire "5.6.3"]
+                 [hiccup "1.0.5"]
                  [enlive "1.1.6"]]
   :main ^:skip-aot foodwich.core
   :target-path "target/%s"
