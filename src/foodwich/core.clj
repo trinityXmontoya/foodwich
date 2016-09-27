@@ -7,6 +7,7 @@
 
 (defn app [req]
   (let [uri (req :uri)]
+    ; (println req)
     (if (boolean (re-find #"(.js|.css)" uri))
     {:status 200
     ;  :headers {"Content-Type" "application/javascript"}

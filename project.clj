@@ -8,7 +8,8 @@
                  [http-kit "2.1.18"]
                  [cheshire "5.6.3"]
                  [hiccup "1.0.5"]
-                 [enlive "1.1.6"]]
+                 [enlive "1.1.6"]
+                 [environ "1.1.0"]]
   :main ^:skip-aot foodwich.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

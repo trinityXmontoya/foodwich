@@ -6,13 +6,17 @@ Food delivery aggregator for easier searching
 * [Foodler](https://www.foodler.com)
 * [Grubhub](https://www.grubhub.com)
 * [Doordash](https://www.doordash.com/)
-* [Delivery.com](https://www.delivery.com) 
+* [Delivery.com](https://www.delivery.com)
 
+
+
+
+### Todo
+* search form
+* filter (cuisine type, delivery time)
 * [Uber Eats](https://ubereats.com) csrf token
 * [Caviar](https://www.trycaviar.com/manhattan) react
 * [Eat24](eat24hours.com) php
-
-
 
 ## Installation
 
