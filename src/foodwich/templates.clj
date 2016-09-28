@@ -30,8 +30,6 @@
                   [:span.time (str (result :delivery-time) " mins")]]
                 [:h5 (result :source)]])]))
 
-; (html5)
-; (include-js "foo.js" "bar.js")
 (defn page-template
   [body]
   (hc/html [:head
@@ -46,8 +44,12 @@
            [:body
             [:div.callout.primary
               [:div.row.column
-                [:h1 "Foodwich"]]]
+                [:div.header-and-logo
+                  [:img {:src "/images/logo.png" :id "logo"}]
+                  [:h1 {:style "display:inline"}"Foodw.ch"]]]]
             [:div.search
               (search-template)]
-            [:div#results]
+            [:div#results body]
             [:script {:src (str "https://maps.googleapis.com/maps/api/js?key=" (env :google-api-key) "&libraries=places&callback=initAutocomplete")}]]))
+
+; Fast Food by Hugo Alberto from the Noun Project

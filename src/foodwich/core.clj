@@ -13,7 +13,9 @@
 
 (defn app [req]
   (let [uri (req :uri)]
-    (if (boolean (re-find #"(.js|.css)" uri))
+  (println uri (re-find #"(.js|.css|.svg)" uri))
+    (if (boolean (re-find #"(.js|.css|.png)" uri))
+
       {:status 200
       ;  :headers {"Content-Type" "application/javascript"}
        :body (File. "public" uri)}
