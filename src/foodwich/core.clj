@@ -12,22 +12,24 @@
 
 
 (defn app [req]
-  (let [uri (req :uri)]
-    (if (boolean (re-find #"(.js|.css|.png|.ico)" uri))
+  (let [uri (req :uri)
+        static-asset? (boolean (re-find #"(.js|.css|.png|.ico)" uri))]
+    (if static-asset?
       {:status 200
        :body (File. "public" uri)}
-    (if (and (= uri "/search")
-             (= (req :request-method) :post))
-      (let [params (json/decode (slurp (req :body)) true)
-            params-map (into {}
-                          (map #(hash-map (keyword (% :name)) (% :value)) params))
-            search-results (scraper/search params-map)]
-        {:status 200
-         :headers {"Content-Type" "text/html;charset:UTF-8"}
-         :body (tmplts/results-template search-results)})
-      {:status  200
-       :headers {"Content-Type" "text/html"}
-       :body (tmplts/page-template (tmplts/results-template sample-data))}))))
+       (if (and (= uri "/search")
+                (= (req :request-method) :post))
+          (let [params (json/decode (slurp (req :body)) true)
+                params-map (into {}
+                              (map #(hash-map (keyword (% :name))
+                                              (% :value)) params))
+                search-results (scraper/search params-map)]
+            {:status 200
+             :headers {"Content-Type" "text/html;charset:UTF-8"}
+             :body (tmplts/results-template search-results)})
+          {:status  200
+           :headers {"Content-Type" "text/html"}
+           :body (tmplts/page-template (tmplts/results-template sample-data))}))))
 
 (defonce server (atom nil))
 
@@ -37,7 +39,6 @@
    (reset! server nil)))
 
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
   (let [port (Integer/parseInt (env :port "8080"))]
-  (reset! server (server/run-server #'app {:port port}))))
+    (reset! server (server/run-server #'app {:port port}))))

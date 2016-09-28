@@ -22,11 +22,9 @@
                             delivery-time delivery-fee delivery-min]} result]
                 [:div.column.merchant {:id (str (name (result :name)) "-" id)}
                   [:a.merchant-link {:href link}
-                  ; [:div.merchant-info.column {:class "merchant-logo" :style (str "background-image:url('" (result :logo) "')")}]
                     [:div.merchant-info.column.name (result :name)]
-                    [:div.merchant-info.column
-                    (clojure.string/join " " (map #(or (emoji/match %) %) cuisines))]
-                    [:div.merchant-info.column (str delivery-time "🕑")]
+                    [:div.merchant-info.column (clojure.string/join " " (map #(or (emoji/match %) %) cuisines))]
+                    [:div.merchant-info.column (when  delivery-time (str delivery-time "🕑"))]
                     [:div.merchant-info.column (repeat (or cost-range 0) "💰")]]]))))
 
 (defn page-template
@@ -48,11 +46,10 @@
                   [:h1 {:style "display:inline"}"Foodw.ch"]]]]
             [:div.search.row
               (search-template)]
-            [:div#results.row.small-up-2.medium-up-3.large-up-4 body]
+            [:div#results.row.small-up-2.medium-up-3.large-up-4
+              body]
             [:div.callout
               [:div.row
                 [:div.large-6.columns "Site: <a href='http://baddadjok.es'>Trinity Montoya</a>"]
                 [:div.large-6.columns "Logo: Fast Food by <a href='https://thenounproject.com/hugugolplex/'>Hugo Alberto</a> via <a href='https://thenounproject.com/'>the Noun Project</a>"]]]
             [:script {:src (str "https://maps.googleapis.com/maps/api/js?key=" (env :google-api-key) "&libraries=places&callback=initAutocomplete")}]]))
-
-; Fast Food by Hugo Alberto from the Noun Project

@@ -1,8 +1,7 @@
 (ns foodwich.emoji)
 
 (def match
-  {
-   "Seafood" "🦀"
+  {"Seafood" "🦀"
     "Asian" nil
     "Japanese" "🇯🇵"
     "Sushi" "🍣"
@@ -11,9 +10,10 @@
     "Mediterranean" nil
     "Greek" "🇬🇷"
     "Thai" "🇹🇭"
-    "Sandwiches" "🍞"
+    "Bakery" "🍞"
     "Deli" nil
     "Burgers" "🍔"
+    "Hamburgers" "🍔"
     "Soups" "🍲"
     "Cuban" "🇨🇺"
     "Latin" nil
@@ -37,5 +37,10 @@
     "Chicken" "🐔"
     "Bagels" nil
     "Desserts" "🍰"
+    "Dessert" "🍰"
+    "Ethiopian" "🇪🇹"
     "Chinese" "🇨🇳"
-})
+    "French" "🇫🇷"
+    "Pasta" "🍝"
+    "Puerto Rican" "🇵🇷"
+    "Haitian" "🇭🇹"})
