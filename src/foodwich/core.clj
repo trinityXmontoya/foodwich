@@ -13,21 +13,18 @@
 
 (defn app [req]
   (let [uri (req :uri)]
-  (println uri (re-find #"(.js|.css|.svg)" uri))
-    (if (boolean (re-find #"(.js|.css|.png)" uri))
-
+    (if (boolean (re-find #"(.js|.css|.png|.ico)" uri))
       {:status 200
-      ;  :headers {"Content-Type" "application/javascript"}
        :body (File. "public" uri)}
-    (if (and (= uri "/search") (= (req :request-method) :post))
+    (if (and (= uri "/search")
+             (= (req :request-method) :post))
       (let [params (json/decode (slurp (req :body)) true)
             params-map (into {}
-                          (map
-                            #(hash-map (keyword (% :name))
-                                       (% :value)) params))]
+                          (map #(hash-map (keyword (% :name)) (% :value)) params))
+            search-results (scraper/search params-map)]
         {:status 200
-         :headers {"Content-Type" "text/html"}
-         :body (tmplts/results-template (scraper/search params-map))})
+         :headers {"Content-Type" "text/html;charset:UTF-8"}
+         :body (tmplts/results-template search-results)})
       {:status  200
        :headers {"Content-Type" "text/html"}
        :body (tmplts/page-template (tmplts/results-template sample-data))}))))

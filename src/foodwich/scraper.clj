@@ -91,32 +91,9 @@
               :headers {"Authorization" "Bearer 1890dfe3-ae4a-4cf2-bf88-04d0759f6727"}}]
       (http/get url opts
         (fn [{:keys [status headers body error]}]
-           (if error
-             (do (println "Failed, exception is " error)
-                  nil)
+           (if-not (= status 200)
+             nil
              body)))))
-
-; DKHI2E0IEGDPOABJEW
-      ; (defn grubhub-parse
-      ;   [addr]
-      ;   (let [res @(grubhub-req addr)
-      ;         body (json/decode (res :body) true)
-      ;         options (get-in body [:search_result :results])]
-      ;     (map (fn [o]
-      ;             {:source
-      ;              :id
-      ;              :name
-      ;              :cuisines
-      ;              :logo
-      ;              :link
-      ;              :cost-range
-      ;              :rating
-      ;              :delivery-min
-      ;              :delivery-fee
-      ;              :delivery-time
-                    ;  }) options)
-      ;
-      ;         ))
 
 (defn grubhub-parse
   [coords]
@@ -156,7 +133,7 @@
            :id (second (re-find #"\/.+\/(\d+)" (get-in (first (html/select o [:h2 :a])) [:attrs :href])))
            :name (html/text (first (html/select o [:h2 :a])))
            :logo (get-in (first (html/select o [:div.logo :img])) [:attrs :src])
-           :link (re-find #"\/.+\/\d+" (get-in (first (html/select o [:h2 :a])) [:attrs :href]))
+           :link (str "https://www.foodler.com/" (re-find #"\/.+\/\d+" (get-in (first (html/select o [:h2 :a])) [:attrs :href])))
            :cost-range (let [cost (first (html/select o [:div.cost :img]))]
                         (when cost
                           (Integer. (second (re-find #"cost_(\d)" (get-in cost [:attrs :src]))))))
@@ -170,7 +147,8 @@
   [params]
   (let [{:keys [addr zip coords]} params
         coords (clojure.string/split coords #",")]
-    (concat (grubhub-parse coords)
-            (doordash-parse coords)
-            (delivery-parse addr)
-            (foodler-parse addr zip))))
+    (remove nil?
+      (concat (grubhub-parse coords)
+              (doordash-parse coords)
+              (delivery-parse addr)
+              (foodler-parse addr zip)))))

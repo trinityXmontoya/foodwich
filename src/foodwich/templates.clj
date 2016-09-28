@@ -1,55 +1,58 @@
 (ns foodwich.templates
   (:require [hiccup.core :as hc]
+            [foodwich.emoji :as emoji]
             [environ.core :refer [env]]))
 
 (defn search-template
   []
   (hc/html [:form {:method "POST" :action "/search" :id "address-form"}
               [:div.row
-                [:div.medium-6.columns
-                  [:input {:id "address-input" :name "addr" :type "text" :placeholder "123 Main St"}]
+                [:div.small-6.small-centered.columns
                   [:input {:id "zip-input" :name "zip" :type "hidden"}]
                   [:input {:id "coords-input" :name "coords" :type "hidden"}]
-                  [:input {:type "submit" :class "button"} "Search"]]]]))
+                  [:div.input-group
+                    [:input {:id "address-input" :name "addr" :type "text" :placeholder "123 Main St" :class "input-group-field"}]
+                    [:div.input-group-button
+                      [:input {:type "submit" :value "Search" :class "button submit-btn"}]]]]]]))
 
 (defn results-template
   [results]
-  (hc/html [:div.row.small-up-2.medium-up-3.large-up-4
-            (for [result results]
-              [:div.column {:id (str (result :source) "-" (result :id))}
-                [:img {:src (result :logo)}]
-                [:h2
-                  [:a {:href (result :link)} (result :name)]]
-                [:span (clojure.string/join ", " (result :cuisines))]
-                [:br]
-                [:span.rating (str (result :rating) "/5")]
-                [:span.cost-range (result :cost-range)]
-                [:div.delivery-info
-                  [:span.min (str "$" (or (result :delivery-min) 0))]
-                  [:span.fee (str "$" (result :delivery-fee))]
-                  [:span.time (str (result :delivery-time) " mins")]]
-                [:h5 (result :source)]])]))
+  (hc/html (for [result results]
+              (let [{:keys [id source link cuisines rating cost-range
+                            delivery-time delivery-fee delivery-min]} result]
+                [:div.column.merchant {:id (str (name (result :name)) "-" id)}
+                  [:a.merchant-link {:href link}
+                  ; [:div.merchant-info.column {:class "merchant-logo" :style (str "background-image:url('" (result :logo) "')")}]
+                    [:div.merchant-info.column.name (result :name)]
+                    [:div.merchant-info.column
+                    (clojure.string/join " " (map #(or (emoji/match %) %) cuisines))]
+                    [:div.merchant-info.column (str delivery-time "🕑")]
+                    [:div.merchant-info.column (repeat (or cost-range 0) "💰")]]]))))
 
 (defn page-template
   [body]
   (hc/html [:head
             [:title "Foodwich"]
+            [:meta {:charset "UTF-8"}]
             [:link {:rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.3/foundation.min.css"}]
             [:link {:rel "stylesheet" :href "/css/app.css"}]
             [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"}]
             [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.3/foundation.min.js"}]
             [:script {:src "/js/app.js"}]
-            [:script {:src "/js/autocomplete.js"}]
-            ]
+            [:script {:src "/js/autocomplete.js"}]]
            [:body
-            [:div.callout.primary
+            [:div.callout
               [:div.row.column
                 [:div.header-and-logo
                   [:img {:src "/images/logo.png" :id "logo"}]
                   [:h1 {:style "display:inline"}"Foodw.ch"]]]]
-            [:div.search
+            [:div.search.row
               (search-template)]
-            [:div#results body]
+            [:div#results.row.small-up-2.medium-up-3.large-up-4 body]
+            [:div.callout
+              [:div.row
+                [:div.large-6.columns "Site: <a href='http://baddadjok.es'>Trinity Montoya</a>"]
+                [:div.large-6.columns "Logo: Fast Food by <a href='https://thenounproject.com/hugugolplex/'>Hugo Alberto</a> via <a href='https://thenounproject.com/'>the Noun Project</a>"]]]
             [:script {:src (str "https://maps.googleapis.com/maps/api/js?key=" (env :google-api-key) "&libraries=places&callback=initAutocomplete")}]]))
 
 ; Fast Food by Hugo Alberto from the Noun Project
