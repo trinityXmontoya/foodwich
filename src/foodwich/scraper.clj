@@ -70,7 +70,7 @@
     (remove nil?
       (map
         (fn [o]
-          (when (not (o :status_type) "pre-order")
+          (when-not (= (o :status_type) "pre-order")
             {:source :doordash
              :id (get-in o [:business :id])
              :name (o :name)
@@ -135,7 +135,8 @@
                           (Integer. (second (re-find #"cost_(\d)" (get-in cost [:attrs :src])))))
            :rating (when-let [rating (re-find #"\d+.\d+" (html/text (first (html/select o [:div.rating :div.average]))))]
                     (Float. rating))
-           :delivery-min (Integer. (re-find #"\d+" (html/text (first (html/select o [:div.delivery :span.min])))))
+           :delivery-min (when-let [min (re-find #"\d+" (html/text (first (html/select o [:div.delivery :span.min]))))]
+                           (Integer. min))
            :delivery-fee (or (second (re-find #"\$(\d+)" (html/text (first (html/select o [:div.delivery :span.fee]))))) 0)}) options))))
 
 (defn search
